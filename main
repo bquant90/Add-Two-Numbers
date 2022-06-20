@@ -1,0 +1,112 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Linked list with nodes
+typedef struct Node {
+  int data; // Any data type can be stored in this node
+  struct Node* next;
+}Node;
+
+// Function to add a new node with given data
+Node* newNode(int data) {
+  Node* new_node = (Node*)malloc(sizeof(Node));
+  new_node->data = data;
+  new_node->next = NULL;
+  return new_node;
+}
+
+// Function to add a node at the beginning of the linked list. This function expects a pointer to the data to be added.
+void push(struct Node** head_ref, int new_data) {
+  // Allocate memory for node
+  Node* new_node = newNode(new_data);
+  new_node->next = *head_ref; // Link the old list off the new node
+  *head_ref = new_node;
+}
+
+// Function to print nodes in a linked list.
+void printList(Node *node) {
+  while (node != NULL) {
+    printf("%d ", node->data);
+    node = node->next;
+  }
+  printf("\n");
+}
+
+Node* addTwoLists(Node* l1, Node* l2) {
+  Node* result = NULL; // result is the head node of the final list
+  Node *temp;
+  Node *prev = NULL;
+  int carry = 0;
+  int sum;
+
+  while (l1 != NULL || l2 != NULL) {
+    sum = carry + (l1 ? l1->data : 0) + (l2 ? l2->data : 0);
+    carry = (sum >= 10) ? 1 : 0; // Updates carry for next calculation
+    sum %= 10; // Update the sum if it is greater than 10
+    temp = newNode(sum); // Creates a new node with sum as data
+    if (result == NULL) {
+      result = temp; // If this is the first node, the set it as head of the final        list
+    }
+    else {
+      prev->next = temp; // Connects the node to the existing list otherwise
+    }
+    prev = temp; // Next insertion
+    // Move the pointers of list1 and list2 to the next nodes of each
+    if (l1) { 
+      l1 = l1->next;
+    }
+    if (l2) {
+      l2 = l2->next;
+    }
+    if (carry > 0) {
+      temp->next = newNode(carry);
+    }
+  }
+  return result; // Return the head of the final list
+}
+
+Node* reverse(Node* head) {
+  if(head == NULL || head ->next == NULL) {
+    return head;
+  }
+  // Reverse the rest list and put the first element at the end
+  Node* rest = reverse(head->next);
+  head->next->next = head;
+  head->next = NULL;
+  return rest;
+}
+
+int main(void) {
+  // Initialize the 2 lists and resultant list. No nodes are put in yet
+  Node* list1 = NULL;
+  Node* list2 = NULL;
+  Node* final_list = NULL;
+  // Create the first list
+  push(&list1, 3);
+  push(&list1, 4);
+  push(&list1, 2);
+  // Create the second list
+  push(&list2, 4);
+  push(&list2, 6);
+  push(&list2, 5);
+
+  printf("Linked List 1: ");
+  printList(list1);
+  printf("Linked List 2: ");
+  printList(list2);
+  
+  // Reverse the lists and add both of them together
+  list1 = reverse(list1);
+  list2 = reverse(list2);
+  final_list = addTwoLists(list1, list2);
+
+  // Print the final list before reversing it
+  printf("Resulting List: ");
+  printList(final_list);
+  
+  final_list = reverse(final_list); // Reverse the final list to get correct sum
+  
+  printf("The sum of linked list 1 and 2: ");
+  printList(final_list);
+  return 0;
+}
